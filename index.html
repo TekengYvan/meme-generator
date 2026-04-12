@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MemeGen Pro - Admission Project</title>
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <div class="logo">MEMEGEN</div>
+        <nav>
+          <button id="viewGalleryBtn" class="btn btn-secondary">Galerie</button>
+        </nav>
+      </header>
+
+      <main class="main-container">
+        <!-- Editor Section -->
+        <section class="preview-panel">
+          <div class="canvas-wrapper" id="dropZone">
+            <canvas id="memeCanvas"></canvas>
+            <div id="uploadPlaceholder" class="upload-area">
+              <svg xmlns="http://www.w3.org/2000/svg" class="upload-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              <h3>Déposez une image ou cliquez pour télécharger</h3>
+              <p>JPG, PNG supporté</p>
+              <input type="file" id="fileInput" class="hidden" accept="image/*" />
+            </div>
+          </div>
+        </section>
+
+        <!-- Controls Section -->
+        <section class="controls-panel">
+          <div class="control-group">
+            <label for="topText">Texte du haut</label>
+            <input type="text" id="topText" placeholder="ENTREZ LE TEXTE DU HAUT" />
+          </div>
+
+          <div class="control-group">
+            <label for="bottomText">Texte du bas</label>
+            <input type="text" id="bottomText" placeholder="ENTREZ LE TEXTE DU BAS" />
+          </div>
+
+          <div class="control-group">
+            <label>Styles</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <button id="resetBtn" class="btn btn-secondary">Réinitialiser</button>
+              <button id="saveGalleryBtn" class="btn">Enregistrer</button>
+            </div>
+            <button id="downloadBtn" class="btn" style="margin-top: 0.5rem; background: var(--accent);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Télécharger
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <!-- Gallery Section (Hidden by default) -->
+      <section id="gallerySection" class="gallery-section hidden">
+        <div class="section-title">
+          <span>Ma Galerie</span>
+          <button id="closeGalleryBtn" class="btn btn-secondary">Fermer</button>
+        </div>
+        <div id="galleryGrid" class="gallery-grid">
+          <!-- Gallery items will be injected here -->
+        </div>
+      </section>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
