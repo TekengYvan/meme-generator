@@ -1,24 +1,38 @@
 import './style.css'
 
-// State
+// --- State ---
 let currentImage = null;
 let topText = '';
 let bottomText = '';
+let fontScale = 0.5; // From 0.1 to 1.0 (slider 10 to 100)
+let textColor = '#ffffff';
+let fontFamily = 'Impact';
+
 const SAVED_MEMES_KEY = 'memegen-pro-gallery';
 
-// DOM Elements
+// --- DOM Elements ---
 const canvas = document.getElementById('memeCanvas');
 const ctx = canvas.getContext('2d');
 const fileInput = document.getElementById('fileInput');
 const dropZone = document.getElementById('dropZone');
 const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+
+// Inputs
 const topTextInput = document.getElementById('topText');
 const bottomTextInput = document.getElementById('bottomText');
+const fontSizeInput = document.getElementById('fontSize');
+const textColorInput = document.getElementById('textColor');
+const fontFamilyInput = document.getElementById('fontFamily');
+
+// Buttons
 const downloadBtn = document.getElementById('downloadBtn');
 const saveGalleryBtn = document.getElementById('saveGalleryBtn');
+const mainShareBtn = document.getElementById('mainShareBtn');
 const viewGalleryBtn = document.getElementById('viewGalleryBtn');
 const closeGalleryBtn = document.getElementById('closeGalleryBtn');
 const resetBtn = document.getElementById('resetBtn');
+
+// Gallery
 const gallerySection = document.getElementById('gallerySection');
 const galleryGrid = document.getElementById('galleryGrid');
 
@@ -41,7 +55,7 @@ function setupEventListeners() {
   dropZone.addEventListener('drop', handleDrop);
   fileInput.addEventListener('change', handleFileSelect);
 
-  // Text Inputs
+  // Text Logic
   topTextInput.addEventListener('input', (e) => {
     topText = e.target.value.toUpperCase();
     drawMeme();
@@ -51,9 +65,28 @@ function setupEventListeners() {
     drawMeme();
   });
 
+  // Styling Logic
+  fontSizeInput.addEventListener('input', (e) => {
+    fontScale = e.target.value / 100;
+    drawMeme();
+  });
+  textColorInput.addEventListener('input', (e) => {
+    textColor = e.target.value;
+    drawMeme();
+  });
+  fontFamilyInput.addEventListener('change', (e) => {
+    fontFamily = e.target.value;
+    drawMeme();
+  });
+
   // Action Buttons
   downloadBtn.addEventListener('click', downloadMeme);
   saveGalleryBtn.addEventListener('click', saveToGallery);
+  mainShareBtn.addEventListener('click', () => {
+    const dataURL = canvas.toDataURL('image/png');
+    shareMeme(dataURL);
+  });
+
   viewGalleryBtn.addEventListener('click', () => {
     gallerySection.classList.remove('hidden');
     loadGallery();
@@ -94,8 +127,8 @@ function loadImage(file) {
 function drawMeme() {
   if (!currentImage) return;
 
-  // Set canvas size to match image aspect ratio but keep reasonable dimensions
-  const maxWidth = 800;
+  // Set canvas size (Maintain aspect ratio, Max width 1200 for hi-res exports)
+  const maxWidth = 1200;
   const ratio = currentImage.height / currentImage.width;
   canvas.width = maxWidth;
   canvas.height = maxWidth * ratio;
@@ -103,26 +136,31 @@ function drawMeme() {
   // Draw background image
   ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
 
-  // Meme text style
-  const fontSize = Math.floor(canvas.width / 10);
-  ctx.fillStyle = 'white';
+  // Dynamic Font Size calculation
+  const baseSize = canvas.width / 10;
+  const actualFontSize = baseSize * fontScale * 2; // Multiplier to allow big text
+
+  // Text Styling
+  ctx.fillStyle = textColor;
   ctx.strokeStyle = 'black';
-  ctx.lineWidth = Math.floor(fontSize / 8);
+  ctx.lineWidth = actualFontSize / 10;
   ctx.textAlign = 'center';
-  ctx.font = `bold ${fontSize}px Impact, Archivo Black, "Arial Black", sans-serif`;
+  ctx.font = `bold ${actualFontSize}px ${fontFamily}, Impact, sans-serif`;
+
+  const margin = actualFontSize / 2 + 20;
 
   // Draw Top Text
   if (topText) {
     ctx.textBaseline = 'top';
-    ctx.fillText(topText, canvas.width / 2, 20);
-    ctx.strokeText(topText, canvas.width / 2, 20);
+    ctx.fillText(topText, canvas.width / 2, margin);
+    ctx.strokeText(topText, canvas.width / 2, margin);
   }
 
   // Draw Bottom Text
   if (bottomText) {
     ctx.textBaseline = 'bottom';
-    ctx.fillText(bottomText, canvas.width / 2, canvas.height - 20);
-    ctx.strokeText(bottomText, canvas.width / 2, canvas.height - 20);
+    ctx.fillText(bottomText, canvas.width / 2, canvas.height - margin);
+    ctx.strokeText(bottomText, canvas.width / 2, canvas.height - margin);
   }
 }
 
@@ -147,7 +185,7 @@ function saveToGallery() {
   });
 
   localStorage.setItem(SAVED_MEMES_KEY, JSON.stringify(savedMemes));
-  alert('Mèmè enregistré dans la galerie !');
+  showToast('Mème enregistré dans la galerie !');
 }
 
 function loadGallery() {
@@ -155,7 +193,7 @@ function loadGallery() {
   galleryGrid.innerHTML = '';
 
   if (savedMemes.length === 0) {
-    galleryGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-dim);">Aucun mème enregistré pour le moment.</p>';
+    galleryGrid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:var(--text-dim);">Votre galerie est vide.</p>';
     return;
   }
 
@@ -164,16 +202,17 @@ function loadGallery() {
     item.className = 'gallery-item';
     item.innerHTML = `
       <img src="${meme.data}" alt="Meme">
-      <div class="overlay" style="flex-direction: column; gap: 0.5rem; justify-content: center; align-items: center; background: rgba(0,0,0,0.6);">
-        <button class="btn btn-secondary" style="width: 80%" onclick="window.downloadFromLink('${meme.data}')">Télécharger</button>
-        <button class="btn" style="width: 80%; background: var(--accent)" onclick="window.shareMeme('${meme.data}')">Partager</button>
+      <div class="overlay">
+        <button class="btn btn-secondary" style="width: 90%" onclick="window.downloadFromLink('${meme.data}')">Télécharger</button>
+        <button class="btn btn-share" style="width: 90%" onclick="window.shareMeme('${meme.data}')">Partager</button>
+        <button class="btn btn-danger" style="width: 90%" onclick="window.deleteMeme(${meme.id})">Supprimer</button>
       </div>
     `;
     galleryGrid.appendChild(item);
   });
 }
 
-// Global helper for sharing
+// --- Global Helpers ---
 window.shareMeme = async (dataUrl) => {
   try {
     const response = await fetch(dataUrl);
@@ -183,23 +222,31 @@ window.shareMeme = async (dataUrl) => {
     if (navigator.share) {
       await navigator.share({
         files: [file],
-        title: 'Mon Mème',
-        text: 'Regarde le mème que j\'ai créé avec MemeGen Pro !',
+        title: 'MemeGen Pro',
+        text: 'Regardez ce mème que je viens de créer !',
       });
     } else {
-      alert('Le partage n\'est pas supporté sur ce navigateur. Téléchargez l\'image pour la partager.');
+      // Fallback social links (Twitter/Twitter) - Note: Direct image sharing via URL fallback is limited for base64
+      alert('Le partage direct n\'est pas supporté sur ce navigateur. Veuillez télécharger l\'image.');
     }
   } catch (err) {
     console.error('Share failed:', err);
   }
 };
 
-// Global helper for gallery items
 window.downloadFromLink = (data) => {
   const link = document.createElement('a');
   link.download = `meme-saved-${Date.now()}.png`;
   link.href = data;
   link.click();
+};
+
+window.deleteMeme = (id) => {
+  if (!confirm('Voulez-vous vraiment supprimer ce mème ?')) return;
+  let savedMemes = JSON.parse(localStorage.getItem(SAVED_MEMES_KEY) || '[]');
+  savedMemes = savedMemes.filter(m => m.id !== id);
+  localStorage.setItem(SAVED_MEMES_KEY, JSON.stringify(savedMemes));
+  loadGallery();
 };
 
 function resetApp() {
@@ -208,7 +255,28 @@ function resetApp() {
   bottomText = '';
   topTextInput.value = '';
   bottomTextInput.value = '';
+  fontSizeInput.value = 50;
+  textColorInput.value = '#ffffff';
+  fontFamilyInput.value = 'Impact';
+  fontScale = 0.5;
+  textColor = '#ffffff';
+  fontFamily = 'Impact';
+  
   uploadPlaceholder.classList.remove('hidden');
   canvas.classList.add('hidden');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function showToast(message) {
+  // Simple alert upgrade
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+    background: var(--primary); color: white; padding: 1rem 2rem;
+    border-radius: 99px; z-index: 10000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s ease;
+  `;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
 }

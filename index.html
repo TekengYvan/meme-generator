@@ -2,7 +2,7 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MemeGen Pro - Admission Project</title>
   </head>
@@ -43,15 +43,39 @@
             <input type="text" id="bottomText" placeholder="ENTREZ LE TEXTE DU BAS" />
           </div>
 
+          <div class="control-grid">
+            <div class="control-group">
+              <label for="fontSize">Taille</label>
+              <input type="range" id="fontSize" min="10" max="100" value="50" />
+            </div>
+            <div class="control-group">
+              <label for="textColor">Couleur</label>
+              <input type="color" id="textColor" value="#ffffff" style="height: 38px; width: 100%; border: none; padding: 0; background: none; cursor: pointer;" />
+            </div>
+          </div>
+
           <div class="control-group">
-            <label>Styles</label>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <label for="fontFamily">Police</label>
+            <select id="fontFamily" class="select-input">
+              <option value="Impact">Impact (Standard)</option>
+              <option value="Archivo Black">Modern</option>
+              <option value="Arial Black">Classic</option>
+              <option value="Outfit">Clean</option>
+            </select>
+          </div>
+
+          <div class="actions-stack">
+            <div class="btn-group">
               <button id="resetBtn" class="btn btn-secondary">Réinitialiser</button>
               <button id="saveGalleryBtn" class="btn">Enregistrer</button>
             </div>
-            <button id="downloadBtn" class="btn" style="margin-top: 0.5rem; background: var(--accent);">
+            <button id="downloadBtn" class="btn btn-accent">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
               Télécharger
+            </button>
+            <button id="mainShareBtn" class="btn btn-share">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+              Partager
             </button>
           </div>
         </section>
